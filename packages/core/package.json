@@ -1,0 +1,63 @@
+{
+  "name": "@devlens/core",
+  "version": "1.0.0",
+  "description": "Automatic runtime error detection and logging for JavaScript applications",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "devlens",
+    "crashsense",
+    "debug",
+    "error-detection",
+    "runtime-errors",
+    "null-detection",
+    "api-errors",
+    "developer-tools",
+    "console-log",
+    "auto-debug"
+  ],
+  "author": "crashsense",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crashsense/devlens.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/crashsense/devlens#readme",
+  "bugs": {
+    "url": "https://github.com/crashsense/devlens/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "tsup": "^8.4.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "@devlens/react",
+  "version": "1.0.0",
+  "description": "DevLens React integration - automatic error detection for React apps",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "devlens",
+    "crashsense",
+    "react",
+    "debug",
+    "error-boundary",
+    "error-detection",
+    "developer-tools"
+  ],
+  "author": "crashsense",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crashsense/devlens.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://github.com/crashsense/devlens#readme",
+  "bugs": {
+    "url": "https://github.com/crashsense/devlens/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "dependencies": {
+    "@devlens/core": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.4.0",
+    "vitest": "^3.0.0"
+  }
+}
