@@ -1,6 +1,6 @@
 {
   "name": "@devlens/vue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "DevLens Vue integration - automatic error detection for Vue apps",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -54,7 +54,7 @@
     "vue": ">=3.3.0"
   },
   "dependencies": {
-    "@devlens/core": "2.0.0"
+    "@devlens/core": "2.0.1"
   },
   "devDependencies": {
     "@types/node": "^25.3.0",
