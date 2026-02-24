@@ -158,11 +158,11 @@ console.log(data.user.profile.avatar);
 | @devlens/vue | 1.0.0 | ~5KB |
 
 ## Roadmap
-
-| Version | Feature | Status |
 |---------|---------|--------|
 | **v1.0** | Console logging -- network, null detection, error boundaries | Done |
 | **v2.0** | UI panel overlay + Vue.js support | Current |
-| **v3.0** | Cloud dashboard + analytics | Planned |
+| **v3.0** | AI-powered analysis -- Claude and Gemini models analyze issues, identify root causes, and suggest fixes | Planned |
+
+The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes -- directly in your dev console or UI panel.
 
 </div>
