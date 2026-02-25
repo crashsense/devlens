@@ -2,7 +2,7 @@
 
 Automatic runtime error detection and logging for JavaScript applications.
 
-DevLens detects silent failures in your app -- null data, API errors, undefined properties -- and logs them with actionable context. No manual `console.log` required.
+DevLens detects silent failures in your app - null data, API errors, undefined properties - and logs them with actionable context. No manual `console.log` required.
 
 ## Why DevLens?
 
@@ -10,10 +10,10 @@ You've been here: the UI renders blank, no error in console, and you spend 30 mi
 
 DevLens fixes this by automatically detecting and logging:
 
-- **API errors** -- failed fetch/XHR calls, 4xx/5xx responses, network failures
-- **Null/undefined access** -- property access on null or undefined objects, before it crashes
-- **Missing render data** -- state values your UI depends on that are null/undefined
-- **Unhandled errors** -- global errors and unhandled promise rejections
+- **API errors** - failed fetch/XHR calls, 4xx/5xx responses, network failures
+- **Null/undefined access** - property access on null or undefined objects, before it crashes
+- **Missing render data** - state values your UI depends on that are null/undefined
+- **Unhandled errors** - global errors and unhandled promise rejections
 
 Zero config. Dev-only. Drop it in and see everything.
 
@@ -23,8 +23,9 @@ Zero config. Dev-only. Drop it in and see everything.
 |---------|---------|-------------|
 | [@devlens/core](./packages/core) | 2.0.3 | Detection engine, interceptors, guardian, reporter |
 | [@devlens/react](./packages/react) | 2.0.3 | React provider, error boundary, guarded hooks |
-| [@devlens/ui](./packages/ui) | 1.1.0 | Visual debug panel overlay + inspector window |
+| [@devlens/ui](./packages/ui) | 1.2.0 | Visual debug panel overlay + inspector window |
 | [@devlens/vue](./packages/vue) | 1.0.3 | Vue 3 plugin, guarded composables |
+| [@devlens/vite](./packages/vite) | 0.1.0 | Vite plugin - embedded DevLens dashboard |
 
 ## Installation
 
@@ -102,7 +103,7 @@ Automatically intercepts `fetch` and `XMLHttpRequest` calls. No config needed.
 [NET] DevLens [ERROR] network: POST /api/users returned 500 Internal Server Error
   |- Status: 500
   |- Duration: 1234ms
-  |- Suggestion: Server returned 500 -- check server logs
+  |- Suggestion: Server returned 500 - check server logs
   \- Source: NetworkInterceptor
 ```
 
@@ -225,7 +226,7 @@ DevLens is designed for development only:
 - Automatically disabled when `NODE_ENV === 'production'`
 - `sideEffects: false` in package.json enables tree-shaking
 - Provider renders children directly when disabled (zero overhead)
-- No data is sent anywhere -- everything stays in your browser console
+- No data is sent anywhere - everything stays in your browser console
 
 ## API Reference
 
@@ -272,14 +273,15 @@ DevLens is designed for development only:
 | `useGuardedWatch(data, label?)` | Watch data for null/undefined |
 
 ## Roadmap
+
 | Version | Feature | Status |
 |---------|---------|--------|
-| **v1.0** | Console logging -- network, null detection, error boundaries | Done |
+| **v1.0** | Console logging - network, null detection, error boundaries | Done |
 | **v2.0** | UI panel overlay + Vue.js support | Done |
-| **v2.1** | Inspector window with AI-powered analysis | Current |
-| **v3.0** | Deep AI integration -- real-time pattern detection, auto-fix generation, CI/CD integration | Planned |
+| **v2.1** | Inspector window + embedded dashboard via Vite plugin | Current |
+| **v3.0** | Deep AI integration - real-time pattern detection, auto-fix generation, CI/CD integration | Planned |
 
-The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes -- directly in your dev console or UI panel.
+The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes - directly in your dev console or UI panel.
 
 ## Contributing
 

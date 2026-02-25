@@ -4,7 +4,7 @@ layout: home
 hero:
   name: DevLens
   text: Runtime Error Detection SDK
-  tagline: Stop adding console.log everywhere. DevLens auto-detects API failures, null access, and missing render data -- with actionable context.
+  tagline: Stop adding console.log everywhere. DevLens auto-detects API failures, null access, and missing render data - with actionable context.
   image:
     src: /logo.svg
     alt: DevLens
@@ -21,13 +21,13 @@ hero:
 
 features:
   - title: Network Interceptor
-    details: Auto-intercepts fetch and XHR. Logs 4xx/5xx errors with timing, URL, and fix suggestions. Zero config -- just wrap your app.
+    details: Auto-intercepts fetch and XHR. Logs 4xx/5xx errors with timing, URL, and fix suggestions. Zero config - just wrap your app.
   - title: Data Guardian
-    details: ES6 Proxy wraps your objects to detect null/undefined access with full path tracking -- e.g. "user.profile.avatar is null".
+    details: ES6 Proxy wraps your objects to detect null/undefined access with full path tracking - e.g. "user.profile.avatar is null".
   - title: Render Data Watch
     details: Monitors state values your UI depends on. Alerts when critical props become null or undefined before rendering breaks.
   - title: Zero Config
-    details: Drop in DevLensProvider and see everything. No manual instrumentation needed. Dev-only -- auto-disabled in production.
+    details: Drop in DevLensProvider and see everything. No manual instrumentation needed. Dev-only - auto-disabled in production.
   - title: Actionable Logs
     details: Not just "error occurred". DevLens shows the property path, expected type, found value, and suggests the fix.
   - title: Error Boundary
@@ -94,7 +94,7 @@ function UserProfile() {
 <span class="error">[NET] DevLens [ERROR] network: POST /api/users returned 500 Internal Server Error</span><br>
 <span class="dim">&nbsp;&nbsp;|- Status: 500</span><br>
 <span class="dim">&nbsp;&nbsp;|- Duration: 1234ms</span><br>
-<span class="dim">&nbsp;&nbsp;|- Suggestion: Server returned 500 -- check server logs</span><br>
+<span class="dim">&nbsp;&nbsp;|- Suggestion: Server returned 500 - check server logs</span><br>
 <span class="dim">&nbsp;&nbsp;\- Source: NetworkInterceptor</span>
 </div>
 
@@ -171,16 +171,51 @@ console.log(data.user.profile.avatar);
 |---------|---------|------|
 | @devlens/core | 2.0.3 | ~20KB |
 | @devlens/react | 2.0.3 | ~5KB |
-| @devlens/ui | 1.1.0 | ~75KB |
+| @devlens/ui | 1.2.0 | ~75KB |
 | @devlens/vue | 1.0.3 | ~5KB |
+| @devlens/vite | 0.1.0 | ~1KB |
 
 ## Roadmap
-|---------|---------|--------|
-| **v1.0** | Console logging -- network, null detection, error boundaries | Done |
-| **v2.0** | UI panel overlay + Vue.js support | Done |
-| **v2.1** | Inspector window with AI-powered analysis | Current |
-| **v3.0** | Deep AI integration -- real-time pattern detection, auto-fix generation, CI/CD integration | Planned |
 
-The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes -- directly in your dev console or UI panel.
+<div class="roadmap-timeline">
+  <div class="roadmap-item done">
+    <div class="roadmap-marker"></div>
+    <div class="roadmap-content">
+      <div class="roadmap-version">v1.0</div>
+      <div class="roadmap-title">Console Logging</div>
+      <div class="roadmap-desc">Network interception, null detection, error boundaries</div>
+      <span class="roadmap-badge done">Released</span>
+    </div>
+  </div>
+  <div class="roadmap-item done">
+    <div class="roadmap-marker"></div>
+    <div class="roadmap-content">
+      <div class="roadmap-version">v2.0</div>
+      <div class="roadmap-title">UI Panel + Vue Support</div>
+      <div class="roadmap-desc">Floating debug panel overlay, Vue 3 plugin, guarded composables</div>
+      <span class="roadmap-badge done">Released</span>
+    </div>
+  </div>
+  <div class="roadmap-item current">
+    <div class="roadmap-marker"></div>
+    <div class="roadmap-content">
+      <div class="roadmap-version">v2.1</div>
+      <div class="roadmap-title">Inspector + Dashboard</div>
+      <div class="roadmap-desc">Dedicated inspector window, embedded dashboard via Vite plugin, AI-powered analysis</div>
+      <span class="roadmap-badge current">Current</span>
+    </div>
+  </div>
+  <div class="roadmap-item planned">
+    <div class="roadmap-marker"></div>
+    <div class="roadmap-content">
+      <div class="roadmap-version">v3.0</div>
+      <div class="roadmap-title">Deep AI Integration</div>
+      <div class="roadmap-desc">Real-time pattern detection, auto-fix generation, CI/CD integration</div>
+      <span class="roadmap-badge planned">Planned</span>
+    </div>
+  </div>
+</div>
+
+The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes - directly in your dev console or UI panel.
 
 </div>
