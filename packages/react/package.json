@@ -1,6 +1,6 @@
 {
   "name": "@devlens/react",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "description": "DevLens React integration - automatic error detection for React apps",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -57,7 +57,7 @@
     "react-dom": ">=17.0.0"
   },
   "dependencies": {
-    "@devlens/core": "2.0.3"
+    "@devlens/core": "3.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.3.0",

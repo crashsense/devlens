@@ -1,49 +1,55 @@
 # DevLens
 
-Automatic runtime error detection and logging for JavaScript applications.
+### See through your UI. Catch what your eyes can't.
 
-DevLens detects silent failures in your app - null data, API errors, undefined properties - and logs them with actionable context. No manual `console.log` required.
+DevLens is a zero-config runtime error detection toolkit for JavaScript/TypeScript. It catches silent failures — null access, API errors, contract violations, hung promises — and surfaces them **instantly** with actionable context.
 
-## Why DevLens?
+**v3.0 "The Lens Update"** is the biggest release yet: X-Ray Mode, Plugin Ecosystem, API Contract Guardian, AI Auto-Fix, Session Recording, Async Tracker, and framework-agnostic Web adapter.
 
-You've been here: the UI renders blank, no error in console, and you spend 30 minutes adding `console.log` everywhere to find that `user.profile.settings` is `undefined` because the API silently returned a 500.
-
-DevLens fixes this by automatically detecting and logging:
-
-- **API errors** - failed fetch/XHR calls, 4xx/5xx responses, network failures
-- **Null/undefined access** - property access on null or undefined objects, before it crashes
-- **Missing render data** - state values your UI depends on that are null/undefined
-- **Unhandled errors** - global errors and unhandled promise rejections
-
-Zero config. Dev-only. Drop it in and see everything.
+```bash
+npm install @devlens/core @devlens/react   # React
+npm install @devlens/core @devlens/vue     # Vue
+npm install @devlens/core @devlens/web     # Vanilla / Web Components
+```
 
 ## Packages
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| [@devlens/core](./packages/core) | 2.0.3 | Detection engine, interceptors, guardian, reporter |
-| [@devlens/react](./packages/react) | 2.0.3 | React provider, error boundary, guarded hooks |
-| [@devlens/ui](./packages/ui) | 1.3.0 | Visual debug panel overlay + inspector window |
-| [@devlens/vue](./packages/vue) | 1.0.3 | Vue 3 plugin, guarded composables |
-| [@devlens/vite](./packages/vite) | 0.1.0 | Vite plugin - embedded DevLens dashboard |
+| Package | Version | Size | Description |
+|---------|---------|------|-------------|
+| [`@devlens/core`](./packages/core) | 3.0.0 | ~22KB | Detection engine, plugins, interceptors, contract guardian, async tracker |
+| [`@devlens/react`](./packages/react) | 3.0.0 | ~5KB | React provider, error boundary, guarded hooks |
+| [`@devlens/vue`](./packages/vue) | 2.0.0 | ~5KB | Vue 3 plugin, guarded composables |
+| [`@devlens/ui`](./packages/ui) | 2.0.0 | ~102KB | Visual panel, X-Ray Mode, inspector, session recording |
+| [`@devlens/vite`](./packages/vite) | 2.0.0 | — | Vite plugin — embedded dashboard at `/__devlens__/` |
+| [`@devlens/dashboard`](./packages/dashboard) | 2.0.0 | — | Standalone dashboard with AI analysis |
+| [`@devlens/web`](./packages/web) | 0.1.0 | ~3KB | Vanilla JS / Web Components adapter |
 
-## Installation
+---
 
-```bash
-# React apps
-npm install @devlens/core @devlens/react
+## X-Ray Mode
 
-# React apps with UI panel
-npm install @devlens/core @devlens/react @devlens/ui
+**Hold `Alt` and hover over any element.** DevLens highlights it and shows:
 
-# Vue apps
-npm install @devlens/core @devlens/vue
+- Component name (React, Vue, or DOM tag)
+- Props and state (extracted from React fiber / Vue instance)
+- CSS classnames
+- Related DevLens issues for that component
 
-# Vanilla JS
-npm install @devlens/core
+No browser extension. No DevTools panel. Just hold Alt and look.
+
+```ts
+import { createDevLensPanel } from '@devlens/ui';
+
+const { panel, reporter } = createDevLensPanel({
+  xray: true, // enabled by default
+});
 ```
 
-## Quick Start (React)
+---
+
+## Quick Start
+
+### React
 
 ```tsx
 import { DevLensProvider, DevLensErrorBoundary } from '@devlens/react';
@@ -59,9 +65,7 @@ function App() {
 }
 ```
 
-That's it. Open your browser console and DevLens will start logging detected issues.
-
-## Quick Start (Vue)
+### Vue
 
 ```ts
 import { createApp } from 'vue';
@@ -72,115 +76,168 @@ app.use(createDevLensPlugin());
 app.mount('#app');
 ```
 
-## UI Panel
-
-Add a visual debug panel to any app:
+### Vanilla JS / Web Components
 
 ```ts
-import { createDetectionEngine } from '@devlens/core';
-import { createDevLensPanel, createPanelReporter } from '@devlens/ui';
+import { initDevLens } from '@devlens/web';
 
-const panel = createDevLensPanel({
-  position: 'bottom-right',
-  theme: 'dark',
-  hotkey: 'ctrl+shift+d',
-});
-
-const engine = createDetectionEngine({
-  reporter: createPanelReporter(panel),
-});
+const { engine, destroy } = initDevLens();
+// Network interceptor + global catcher auto-installed
 ```
 
-The panel provides issue list and timeline views, severity/category filtering, search, session persistence, and JSON/CSV export.
+---
 
-## Features
+## What DevLens Catches
 
-### Network Interceptor
-
-Automatically intercepts `fetch` and `XMLHttpRequest` calls. No config needed.
-
+### Network Errors (automatic)
 ```
 [NET] DevLens [ERROR] network: POST /api/users returned 500 Internal Server Error
-  |- Status: 500
   |- Duration: 1234ms
-  |- Suggestion: Server returned 500 - check server logs
-  \- Source: NetworkInterceptor
+  \- Suggestion: Server returned 500 - check server logs
 ```
 
-### Data Guardian
-
-Wraps objects in ES6 Proxy to detect null/undefined access with full path tracking.
-
+### Null/Undefined Access (Proxy-based)
 ```tsx
-import { useGuardedState } from '@devlens/react';
-
-function UserProfile() {
-  const [user, setUser] = useGuardedState(initialUser, 'UserProfile');
-
-  // If user.profile.avatar is null, DevLens auto-logs:
-  // [NULL] DevLens [WARN] null-access: Property "avatar" is null at path "user.profile.avatar"
-  return <img src={user.profile.avatar} />;
-}
+const [user, setUser] = useGuardedState(initialUser, 'UserProfile');
+// user.profile.avatar is null → DevLens logs:
+// [NULL] DevLens [WARN] null-access: Property "avatar" is null at path "user.profile.avatar"
 ```
 
-### Guarded Effect
+### API Contract Violations (new in v3)
+```ts
+import { createApiContractPlugin } from '@devlens/core';
 
-Watch multiple data values for null/undefined in one call:
-
-```tsx
-import { useGuardedEffect } from '@devlens/react';
-
-function Dashboard({ user, posts, settings }) {
-  useGuardedEffect({ user, posts, settings }, 'Dashboard');
-
-  // If any value is null/undefined, DevLens logs:
-  // [RENDER] DevLens [WARN] render-data: "posts" is undefined in Dashboard
-  return <div>...</div>;
-}
+engine.registerPlugin(createApiContractPlugin({
+  endpoints: ['/api/*'],
+  ignoreFields: ['timestamp'],
+}));
+// Auto-learns response shapes, alerts when fields disappear or change type:
+// [CONTRACT] DevLens [WARN] api-contract: Field "avatar" disappeared from GET /api/users response
 ```
 
-### Error Boundary
+### Hung Promises & Duplicate Requests (new in v3)
+```ts
+import { createAsyncTrackerPlugin } from '@devlens/core';
 
-Enhanced React Error Boundary with DevLens integration:
-
-```tsx
-<DevLensErrorBoundary
-  fallback={(error, reset) => (
-    <div>
-      <p>Error: {error.message}</p>
-      <button onClick={reset}>Retry</button>
-    </div>
-  )}
-  onError={(error) => trackError(error)}
->
-  <RiskyComponent />
-</DevLensErrorBoundary>
+engine.registerPlugin(createAsyncTrackerPlugin({
+  timeoutMs: 30000, // alert after 30s
+}));
+// [REJ] DevLens [WARN] Async operation "fetch GET /api/slow" pending for 31s — possible hung promise
 ```
 
-## Vanilla JS Usage
+---
+
+## Plugin System (new in v3)
+
+DevLens is now a platform. Register plugins with lifecycle management:
 
 ```ts
-import {
-  createDetectionEngine,
-  createNetworkInterceptor,
-  createGlobalCatcher,
-  createDataGuardian,
-} from '@devlens/core';
+import { createDetectionEngine, createApiContractPlugin, createAsyncTrackerPlugin } from '@devlens/core';
 
 const engine = createDetectionEngine();
 
-const network = createNetworkInterceptor(engine);
-network.install();
+engine.registerPlugin(createApiContractPlugin());
+engine.registerPlugin(createAsyncTrackerPlugin());
 
-const catcher = createGlobalCatcher(engine);
-catcher.install();
+// Query plugins
+engine.listPlugins();           // [contractPlugin, asyncPlugin]
+engine.getPlugin('api-contract'); // contractPlugin
 
-const guardian = createDataGuardian(engine);
-const data = guardian.guard(apiResponse, 'apiResponse');
-
-// Accessing null/undefined properties now auto-logs
-console.log(data.user.profile.avatar);
+// Cleanup
+engine.unregisterPlugin('async-tracker');
+engine.destroy(); // tears down all plugins
 ```
+
+Write your own:
+```ts
+const myPlugin: DevLensPlugin = {
+  name: 'my-plugin',
+  version: '1.0.0',
+  setup(engine) {
+    // subscribe to issues, register interceptors, etc.
+  },
+  teardown() {
+    // cleanup
+  },
+};
+engine.registerPlugin(myPlugin);
+```
+
+---
+
+## AI Auto-Fix (new in v3)
+
+The dashboard AI doesn't just explain problems — it generates patches:
+
+```ts
+import { generatePatch } from '@devlens/dashboard';
+
+const patch = await generatePatch(issue, 'gemini-2.5-flash');
+// patch.file → "src/components/UserProfile.tsx"
+// patch.diff → unified diff you can apply
+// patch.explanation → "Add null check before accessing avatar"
+```
+
+---
+
+## Session Recording & QA Handoff (new in v3)
+
+QA finds a bug. Instead of writing "I clicked the button and it broke", they export a `.devlens` file. Dev imports it and sees everything.
+
+```ts
+import { createSessionRecorder, exportSession } from '@devlens/ui';
+
+const recorder = createSessionRecorder('session-123', engine.subscribe);
+recorder.start();
+
+// ... QA uses the app, issues are detected ...
+
+// Export for dev team
+exportSession(recorder.getSession());
+// Downloads: devlens-session-session-123-1741700000.devlens
+```
+
+Import in dashboard:
+```ts
+import { parseSessionFile, readFileAsText } from '@devlens/ui';
+
+const text = await readFileAsText(file);
+const { success, session, error } = parseSessionFile(text);
+```
+
+---
+
+## UI Panel & Dashboard
+
+```ts
+import { createDevLensPanel } from '@devlens/ui';
+
+const { panel, reporter } = createDevLensPanel({
+  position: 'bottom-right',
+  theme: 'dark',
+  hotkey: 'ctrl+shift+d',
+  dashboardUrl: '/__devlens__/', // opens full dashboard
+  xray: true,
+});
+```
+
+**Panel features**: Issue list, timeline view, severity/category filtering, search, JSON/CSV export, session persistence, X-Ray Mode.
+
+**Dashboard features**: Full-screen issue explorer, AI analysis (Gemini/Claude/GPT), source code context, pattern detection.
+
+### Vite Integration
+
+```ts
+// vite.config.ts
+import devlens from '@devlens/vite';
+
+export default {
+  plugins: [devlens()],
+  // Dashboard auto-available at http://localhost:5173/__devlens__/
+};
+```
+
+---
 
 ## Configuration
 
@@ -192,27 +249,11 @@ console.log(data.user.profile.avatar);
     throttleMs: 1000,
     maxIssues: 100,
     modules: {
-      network: {
-        fetch: true,
-        xhr: true,
-        ignoreUrls: ['/health', /\.hot-update\./],
-        logSuccess: false,
-      },
-      guardian: {
-        maxDepth: 5,
-        ignorePaths: ['_internal'],
-        verbose: false,
-      },
-      catcher: {
-        windowErrors: true,
-        unhandledRejections: true,
-        consoleErrors: false,
-      },
+      network: { fetch: true, xhr: true, ignoreUrls: ['/health'] },
+      guardian: { maxDepth: 5 },
+      catcher: { windowErrors: true, unhandledRejections: true },
     },
-    ignore: {
-      urls: ['/analytics'],
-      messages: [/ResizeObserver/],
-    },
+    ignore: { messages: [/ResizeObserver/] },
   }}
 >
   <App />
@@ -221,67 +262,19 @@ console.log(data.user.profile.avatar);
 
 ## Production Safety
 
-DevLens is designed for development only:
-
-- Automatically disabled when `NODE_ENV === 'production'`
-- `sideEffects: false` in package.json enables tree-shaking
-- Provider renders children directly when disabled (zero overhead)
-- No data is sent anywhere - everything stays in your browser console
-
-## API Reference
-
-### @devlens/core
-
-| Export | Description |
-|--------|-------------|
-| `createDetectionEngine(config?)` | Creates the core engine |
-| `createNetworkInterceptor(engine, config?)` | Fetch/XHR interceptor |
-| `createDataGuardian(engine, config?)` | Proxy-based null detection |
-| `createGlobalCatcher(engine, config?)` | Global error handler |
-| `createConsoleReporter()` | Console output formatter |
-
-### @devlens/react
-
-| Export | Description |
-|--------|-------------|
-| `DevLensProvider` | Wrapper component, initializes DevLens |
-| `DevLensErrorBoundary` | Error boundary with DevLens reporting |
-| `useDevLens()` | Access the engine instance |
-| `useGuardedState(initial, label?)` | useState with null detection |
-| `useGuardedEffect(data, label?)` | Watch data for null/undefined |
-
-### @devlens/ui
-
-| Export | Description |
-|--------|-------------|
-| `createDevLensPanel(config?)` | Creates the floating debug panel |
-| `createPanelReporter(panel)` | Reporter adapter for the engine |
-| `createDevLensInspector(config?)` | Opens a dedicated inspector window |
-| `createInspectorReporter(inspector)` | Reporter adapter that auto-opens inspector |
-| `createAdapter(sessionId)` | Low-level BroadcastChannel adapter |
-| `createLicenseManager()` | License key management |
-| `createFeatureGate(license)` | Feature gating (Free vs Pro) |
-| `generateLicenseKey()` | Generate a valid license key |
-
-### @devlens/vue
-
-| Export | Description |
-|--------|-------------|
-| `createDevLensPlugin(options?)` | Vue 3 plugin with auto error/warn handlers |
-| `useDevLens()` | Inject the engine instance |
-| `useGuardedRef(initialValue, label?)` | Reactive ref with null detection |
-| `useGuardedWatch(data, label?)` | Watch data for null/undefined |
+- Auto-disabled when `NODE_ENV === 'production'`
+- `sideEffects: false` — tree-shakeable
+- Zero overhead when disabled — provider renders children directly
+- No data sent anywhere — everything stays in your browser
 
 ## Roadmap
 
 | Version | Feature | Status |
 |---------|---------|--------|
-| **v1.0** | Console logging - network, null detection, error boundaries | Done |
-| **v2.0** | UI panel overlay + Vue.js support | Done |
-| **v2.1** | Inspector window + embedded dashboard via Vite plugin | Current |
-| **v3.0** | Deep AI integration - real-time pattern detection, auto-fix generation, CI/CD integration | Planned |
-
-The v3.0 AI integration will analyze patterns across your detected issues, identify root causes, and suggest code fixes - directly in your dev console or UI panel.
+| v1.0 | Console logging — network, null detection, error boundaries | Done |
+| v2.0 | UI panel overlay + Vue support + Inspector + Dashboard | Done |
+| **v3.0** | **X-Ray Mode, Plugin System, API Contract, AI Auto-Fix, Session Recording, Async Tracker, @devlens/web** | **Current** |
+| v4.0 | Svelte/Solid/Angular adapters, browser extension, deeper AI integration | Planned |
 
 ## Contributing
 
@@ -289,4 +282,4 @@ Contributions welcome. Please open an issue first to discuss what you'd like to 
 
 ## License
 
-MIT
+MIT — [GitHub](https://github.com/crashsense/devlens) — [Changelog](./CHANGELOG.md)

@@ -17,6 +17,7 @@ const CATEGORY_LABELS: Record<IssueCategory, string> = {
   'unhandled-error': '[ERR]',
   'unhandled-rejection': '[REJ]',
   'type-mismatch': '[TYPE]',
+  'api-contract': '[CONTRACT]',
 };
 
 const MAX_DISPLAYED_ISSUES = 200;

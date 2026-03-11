@@ -1,6 +1,84 @@
 # Changelog
 
 
+## 🚀 3.0.0 — "The Lens Update" (2026-03-11)
+
+> **This is the biggest DevLens release ever.** 7 new features, 1 new package, and the architecture foundation for everything that comes next. DevLens is no longer just an error detector — it's a **development lens** that lets you see through your UI.
+
+### ⭐ Headline: X-Ray Mode
+
+**Hold `Alt` + hover over any element.** DevLens highlights the element and shows a tooltip with:
+
+- Component name (React, Vue, or plain DOM)
+- Props and state (extracted from React fiber / Vue instance)
+- CSS classnames
+- Number of DevLens issues related to that component
+
+No browser extension needed. No DevTools panel to open. Just hold Alt and look. This is why it's called Dev**Lens**.
+
+- `@devlens/ui` v2.0.0 — New `xray/` module: `createXRayMode()`, overlay rendering inside existing Shadow DOM, React fiber extraction (`__reactFiber$`), Vue 3 instance extraction (`__vueParentComponent`), vanilla DOM fallback. rAF-throttled mousemove, viewport-aware tooltip positioning. Enabled by default — disable with `xray: false` in PanelConfig.
+
+### ⭐ Plugin Ecosystem
+
+DevLens is now a **platform**. The engine supports first-class plugins with lifecycle management.
+
+- `@devlens/core` v3.0.0 — **Breaking**: `DevLensEngine` interface now includes `registerPlugin()`, `unregisterPlugin()`, `getPlugin()`, `listPlugins()`, and `destroy()`. Existing code that creates engines works unchanged. Code that mocks the engine interface (tests) needs to add the new methods.
+- New plugin API: `engine.registerPlugin({ name, version, setup, teardown })` — setup receives the engine, teardown is called on unregister or destroy.
+
+### ⭐ API Contract Guardian
+
+DevLens now auto-learns your API response shapes and alerts when they change unexpectedly.
+
+- `@devlens/core` v3.0.0 — New `contract/` module: `createApiContractPlugin()`. Auto-infers JSON response shape on first request, compares subsequent responses, reports `api-contract` issues when fields disappear or change type. Configurable with `endpoints`, `ignoreFields`, `maxShapes`. New issue category: `api-contract` with `[CONTRACT]` console label.
+
+### ⭐ AI Auto-Fix with Patch Generation
+
+The AI no longer just explains problems — it generates code patches you can copy and apply.
+
+- `@devlens/dashboard` v2.0.0 — New `generatePatch()` function. Uses existing source-fetcher pipeline to provide source code context to AI, then asks for a unified diff patch. Returns `PatchResult { file, diff, explanation }`. Supports all existing AI models (Gemini, Claude, GPT).
+
+### ⭐ Session Export/Import — QA-to-Dev Handoff
+
+QA finds a bug → exports a `.devlens` session file → Dev imports it → sees exactly what QA saw. No more "I can't reproduce it."
+
+- `@devlens/ui` v2.0.0 — New `session/` module:
+  - `createSessionRecorder()` — records user interactions (clicks, inputs, navigation), DevLens issues, and network events into a timeline
+  - `exportSession()` — downloads a `.devlens` JSON file with full session data (metadata, timeline, issues)
+  - `parseSessionFile()` / `readFileAsText()` — import and validate `.devlens` files
+  - `.devlens` file format v1.0: `{ version, sessionId, exportedAt, metadata, timeline[], issues[] }`
+
+### ⭐ Async Flow Tracker
+
+Detect hung promises, duplicate concurrent requests, and forgotten async operations.
+
+- `@devlens/core` v3.0.0 — New `async/` module: `createAsyncTrackerPlugin()`. Wraps `fetch` to track async operation lifecycle. Reports `warn` when a fetch is pending longer than `timeoutMs` (default: 30s). Reports `info` on duplicate concurrent requests to the same endpoint. Configurable via `AsyncTrackerConfig`.
+
+### ⭐ New Package: @devlens/web
+
+Framework-agnostic adapter for vanilla JavaScript and Web Components.
+
+- **@devlens/web** v0.1.0 — `initDevLens(config)` returns `{ engine, destroy() }`. Auto-installs network interceptor and global catcher. Zero framework dependencies. Works with Web Components, vanilla JS, Lit, Stencil, or any non-React/Vue setup.
+
+### Breaking Changes
+
+- **@devlens/core**: `DevLensEngine` interface now requires `registerPlugin`, `unregisterPlugin`, `getPlugin`, `listPlugins`, `destroy` methods. If you mock the engine in tests, add these methods to your mock.
+- **@devlens/core**: New `IssueCategory` value `'api-contract'` — any code with exhaustive category checks needs updating.
+- **@devlens/ui**: Package bumped to v2.0.0 due to new `PanelConfig.xray` option and `session/` module. No existing API removed.
+
+### Version Matrix
+
+| Package | Old | New |
+|---------|-----|-----|
+| `@devlens/core` | 2.0.3 | **3.0.0** |
+| `@devlens/react` | 2.0.3 | **3.0.0** |
+| `@devlens/vue` | 1.0.3 | **2.0.0** |
+| `@devlens/ui` | 1.3.0 | **2.0.0** |
+| `@devlens/dashboard` | 1.0.0 | **2.0.0** |
+| `@devlens/vite` | 1.0.0 | **2.0.0** |
+| `@devlens/web` | — | **0.1.0** (new) |
+
+---
+
 ## 0.2.0 (2026-02-26)
 
 ### Changes
