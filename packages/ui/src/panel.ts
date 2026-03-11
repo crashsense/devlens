@@ -3,6 +3,8 @@ import type { PanelConfig, PanelInstance, PanelState } from './types';
 import { getPanelStyles } from './styles';
 import { createPersistenceManager } from './persistence';
 import { exportAsJSON, exportAsCSV, downloadFile } from './export';
+import { exportSession } from './session/exporter';
+import type { DevLensSession } from './session/types';
 // __DEVLENS_VERSION__ is replaced by tsup at build time (see tsup.config.ts define)
 // Falls back to empty string in non-bundled environments (tests, typecheck)
 declare const __DEVLENS_VERSION__: string;
@@ -93,7 +95,6 @@ export function createPanel(
   toggleBtn.appendChild(badge);
   shadow.appendChild(toggleBtn);
 
-  // Optional dashboard-open button — rendered above the main toggle when dashboardUrl is set
   if (config.dashboardUrl) {
     const dashboardUrl = config.dashboardUrl;
     const dashBtn = el('button', `dl-dashboard-btn ${position}`);
@@ -181,6 +182,38 @@ export function createPanel(
       downloadFile(csv, `devlens-issues-${Date.now()}.csv`, 'text/csv');
     });
     actions.appendChild(exportCsvBtn);
+
+    const exportSessionBtn = el('button', 'dl-header-btn');
+    exportSessionBtn.title = 'Export Session (.devlens)';
+    exportSessionBtn.setAttribute('aria-label', 'Export Session');
+    exportSessionBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+        <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm.5 11.5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 1 0v5zm0-7a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+      </svg>
+      <span class="dl-btn-label">SES</span>
+    `;
+    exportSessionBtn.addEventListener('click', () => {
+      const session: DevLensSession = {
+        version: '1.0',
+        sessionId: `panel_${Date.now().toString(36)}`,
+        exportedAt: new Date().toISOString(),
+        metadata: {
+          browser: navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Unknown',
+          viewport: `${window.innerWidth}x${window.innerHeight}`,
+          url: window.location.href,
+          userAgent: navigator.userAgent,
+          devlensVersion: PANEL_VERSION,
+        },
+        timeline: state.issues.map((issue) => ({
+          t: issue.timestamp - (state.issues[0]?.timestamp ?? issue.timestamp),
+          type: 'issue' as const,
+          data: { issueId: issue.id, message: issue.message, severity: issue.severity, category: issue.category },
+        })),
+        issues: [...state.issues],
+      };
+      exportSession(session);
+    });
+    actions.appendChild(exportSessionBtn);
 
     // Clear button
     const clearBtn = el('button', 'dl-header-btn dl-header-btn--danger');
@@ -534,7 +567,7 @@ export function createPanel(
       e.metaKey === needsMeta
     ) {
       e.preventDefault();
-      togglePanel();
+      if (!panelDisabled) togglePanel();
     }
   }
 
@@ -581,6 +614,19 @@ export function createPanel(
     return [...state.issues];
   }
 
+  let panelDisabled = false;
+
+  function disablePanel(): void {
+    panelDisabled = true;
+    closePanel();
+    toggleBtn.style.display = 'none';
+  }
+
+  function enablePanel(): void {
+    panelDisabled = false;
+    toggleBtn.style.display = '';
+  }
+
   function destroy(): void {
     document.removeEventListener('keydown', handleHotkey);
     if (timeUpdateInterval !== null) {
@@ -597,6 +643,8 @@ export function createPanel(
     addIssue,
     clear: clearIssues,
     getIssues,
+    disable: disablePanel,
+    enable: enablePanel,
     destroy,
   };
 }

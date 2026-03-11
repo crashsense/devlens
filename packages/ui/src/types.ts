@@ -23,6 +23,8 @@ export interface PanelConfig {
   dashboardUrl?: string;
   /** X-Ray Mode: hold Alt + hover to inspect components. true to enable with defaults, object for config, false to disable. (default: true) */
   xray?: boolean | XRayConfig;
+  /** Automatically open the dashboard on first detected issue. (default: false) */
+  autoOpenDashboard?: boolean;
 }
 
 /** Internal state of the panel */
@@ -38,20 +40,16 @@ export interface PanelState {
   selectedIssueId: string | null;
 }
 
-/** Panel instance returned by createPanel */
 export interface PanelInstance {
-  /** Open the panel */
   open(): void;
-  /** Close the panel */
   close(): void;
-  /** Toggle panel visibility */
   toggle(): void;
-  /** Add an issue to the panel */
   addIssue(issue: DetectedIssue): void;
-  /** Clear all issues */
   clear(): void;
-  /** Get current issues */
   getIssues(): readonly DetectedIssue[];
-  /** Destroy the panel and clean up */
+  /** Hide the panel toggle button and panel entirely. Issues still collected. */
+  disable(): void;
+  /** Show the panel toggle button again. */
+  enable(): void;
   destroy(): void;
 }

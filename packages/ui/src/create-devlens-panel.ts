@@ -10,64 +10,26 @@ export function createDevLensPanel(config?: PanelConfig): {
   reporter: Reporter;
   destroy: () => void;
 } {
-  if (typeof document === 'undefined') {
+  function makeNoopResult(): { panel: PanelInstance; reporter: Reporter; destroy: () => void } {
     const noop = (): void => {};
     const noopPanel: PanelInstance = {
-      open: noop,
-      close: noop,
-      toggle: noop,
-      addIssue: noop,
-      clear: noop,
-      getIssues: () => [],
-      destroy: noop,
+      open: noop, close: noop, toggle: noop, addIssue: noop, clear: noop,
+      getIssues: () => [], disable: noop, enable: noop, destroy: noop,
     };
-    return {
-      panel: noopPanel,
-      reporter: { report: noop },
-      destroy: noop,
-    };
+    return { panel: noopPanel, reporter: { report: noop }, destroy: noop };
   }
 
+  if (typeof document === 'undefined') return makeNoopResult();
+
   try {
-    if (
-      typeof process !== 'undefined' &&
-      process.env?.NODE_ENV === 'production'
-    ) {
-      const noop = (): void => {};
-      const noopPanel: PanelInstance = {
-        open: noop,
-        close: noop,
-        toggle: noop,
-        addIssue: noop,
-        clear: noop,
-        getIssues: () => [],
-        destroy: noop,
-      };
-      return {
-        panel: noopPanel,
-        reporter: { report: noop },
-        destroy: noop,
-      };
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') {
+      return makeNoopResult();
     }
   } catch {
     // process may not exist in browser
   }
 
-  // Guard: if a panel instance already exists in the DOM, skip re-init.
-  // This prevents duplicate panels on page refresh or React StrictMode double-invocation.
-  if (document.getElementById('devlens-ui-root')) {
-    const noop = (): void => {};
-    const noopPanel: PanelInstance = {
-      open: noop,
-      close: noop,
-      toggle: noop,
-      addIssue: noop,
-      clear: noop,
-      getIssues: () => [],
-      destroy: noop,
-    };
-    return { panel: noopPanel, reporter: { report: noop }, destroy: noop };
-  }
+  if (document.getElementById('devlens-ui-root')) return makeNoopResult();
 
   const host = document.createElement('div');
   host.id = 'devlens-ui-root';
