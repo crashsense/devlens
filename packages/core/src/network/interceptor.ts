@@ -50,6 +50,7 @@ export function createNetworkInterceptor(
   const interceptXhr = resolvedConfig.xhr !== false;
   const ignoreUrls = resolvedConfig.ignoreUrls ?? [];
   const logSuccess = resolvedConfig.logSuccess ?? false;
+  const trackContracts = resolvedConfig.trackContracts ?? false;
 
   let originalFetch: typeof globalThis.fetch | null = null;
   let originalXhrOpen: typeof XMLHttpRequest.prototype.open | null = null;
@@ -66,11 +67,23 @@ export function createNetworkInterceptor(
     statusText: string,
     duration: number,
     error?: Error,
+    responseBody?: unknown,
   ): void {
     if (!engine.isEnabled()) return;
 
     const severity = error ? 'error' : severityFromStatus(status);
-    if (severity === 'info' && !logSuccess) return;
+    if (severity === 'info' && !logSuccess && !trackContracts) return;
+
+    const details: Record<string, unknown> = {
+      url,
+      method,
+      status,
+      statusText,
+      duration: `${duration}ms`,
+    };
+    if (responseBody !== undefined) {
+      details.responseBody = responseBody;
+    }
 
     const issue: DetectedIssue = {
       id: generateIssueId(method, url, status),
@@ -80,13 +93,7 @@ export function createNetworkInterceptor(
       message: error
         ? `${method} ${url} failed: ${error.message}`
         : `${method} ${url} returned ${status} ${statusText}`,
-      details: {
-        url,
-        method,
-        status,
-        statusText,
-        duration: `${duration}ms`,
-      },
+      details,
       suggestion: error
         ? `Network request to ${url} failed — check if the server is running and the URL is correct`
         : buildSuggestion(method, url, status),
@@ -125,13 +132,23 @@ export function createNetworkInterceptor(
         const response = await savedFetch.call(globalThis, input, init);
         const duration = Math.round(performance.now() - start);
 
-        if (!response.ok || logSuccess) {
+        const shouldReport = !response.ok || logSuccess || trackContracts;
+        if (shouldReport) {
+          let body: unknown;
+          if (trackContracts) {
+            const ct = response.headers.get('content-type') ?? '';
+            if (ct.includes('application/json')) {
+              try { body = await response.clone().json(); } catch { /* non-parseable */ }
+            }
+          }
           reportNetworkIssue(
             method.toUpperCase(),
             url,
             response.status,
             response.statusText,
             duration,
+            undefined,
+            body,
           );
         }
 

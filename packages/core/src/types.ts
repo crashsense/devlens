@@ -71,6 +71,8 @@ export interface NetworkInterceptorConfig {
   ignoreUrls?: (string | RegExp)[];
   /** Log successful responses too (default: false) */
   logSuccess?: boolean;
+  /** Track response body for API Contract Guardian — reports all JSON responses as 'info' (default: false) */
+  trackContracts?: boolean;
   /** Custom response validator */
   validateResponse?: (response: NetworkResponse) => DetectedIssue | null;
 }
