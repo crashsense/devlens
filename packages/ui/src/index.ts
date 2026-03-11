@@ -16,3 +16,11 @@ export type { InspectorAdapter } from './inspector/adapter';
 
 export { createDashboardOpener, createDashboardReporter } from './dashboard-opener';
 export type { DashboardOpenerConfig, DashboardOpenerInstance } from './dashboard-opener';
+
+export { createXRayMode } from './xray/xray-mode';
+export type { XRayConfig, XRayInstance, ComponentInfo } from './xray/types';
+
+export { createSessionRecorder } from './session/recorder';
+export { exportSession, serializeSession } from './session/exporter';
+export { parseSessionFile, readFileAsText } from './session/importer';
+export type { DevLensSession, SessionRecorder, SessionRecorderConfig, TimelineEvent } from './session/types';

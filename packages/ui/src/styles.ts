@@ -708,5 +708,112 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
       color: ${colors.text};
       box-shadow: 0 1px 3px ${colors.shadow};
     }
+
+    /* ─── X-Ray Mode ─── */
+    .dl-xray-highlight {
+      position: fixed;
+      pointer-events: none;
+      border: 2px solid ${colors.brand};
+      border-radius: 4px;
+      background: rgba(99, 102, 241, 0.08);
+      z-index: 2147483645;
+      display: none;
+      transition: top 0.08s ease, left 0.08s ease, width 0.08s ease, height 0.08s ease;
+    }
+
+    .dl-xray-tooltip {
+      position: fixed;
+      pointer-events: none;
+      z-index: 2147483646;
+      max-width: 360px;
+      min-width: 200px;
+      background: ${colors.bg};
+      border: 1px solid ${colors.border};
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: 0 8px 32px ${colors.shadow};
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      color: ${colors.text};
+      display: none;
+      overflow: hidden;
+    }
+
+    .dl-xray-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid ${colors.borderLight};
+    }
+
+    .dl-xray-name {
+      font-weight: 700;
+      color: ${colors.brand};
+      font-size: 12px;
+    }
+
+    .dl-xray-framework {
+      font-size: 9px;
+      font-weight: 600;
+      color: ${colors.textMuted};
+      background: ${colors.bgTertiary};
+      padding: 1px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .dl-xray-section { margin-top: 6px; }
+
+    .dl-xray-section-title {
+      font-size: 9px;
+      font-weight: 700;
+      color: ${colors.textMuted};
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+
+    .dl-xray-entry {
+      display: flex;
+      gap: 6px;
+      padding: 1px 0;
+    }
+
+    .dl-xray-key {
+      color: ${colors.textSecondary};
+      flex-shrink: 0;
+    }
+
+    .dl-xray-value {
+      color: ${colors.text};
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .dl-xray-value.string { color: #a5d6a7; }
+    .dl-xray-value.number { color: #90caf9; }
+    .dl-xray-value.boolean { color: #f48fb1; }
+    .dl-xray-value.null { color: ${colors.textMuted}; font-style: italic; }
+
+    .dl-xray-classes {
+      color: ${colors.textSecondary};
+      font-size: 10px;
+      word-break: break-all;
+    }
+
+    .dl-xray-issues {
+      margin-top: 6px;
+      padding: 4px 8px;
+      background: ${colors.errorBg};
+      border-radius: 4px;
+      color: ${colors.error};
+      font-size: 10px;
+      font-weight: 600;
+    }
   `;
 }

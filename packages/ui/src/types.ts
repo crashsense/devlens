@@ -1,6 +1,8 @@
 import type { DetectedIssue, IssueCategory, Severity } from '@devlens/core';
 
 /** Configuration for the DevLens UI panel */
+import type { XRayConfig } from './xray/types';
+
 export interface PanelConfig {
   /** Position of the toggle button (default: 'bottom-right') */
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
@@ -19,6 +21,8 @@ export interface PanelConfig {
    * When set, a small dashboard-open button appears above the toggle button.
    */
   dashboardUrl?: string;
+  /** X-Ray Mode: hold Alt + hover to inspect components. true to enable with defaults, object for config, false to disable. (default: true) */
+  xray?: boolean | XRayConfig;
 }
 
 /** Internal state of the panel */

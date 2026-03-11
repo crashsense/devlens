@@ -1,7 +1,9 @@
 import type { Reporter } from '@devlens/core';
 import type { PanelConfig, PanelInstance } from './types';
+import type { XRayInstance } from './xray/types';
 import { createPanel } from './panel';
 import { createPanelReporter } from './panel-reporter';
+import { createXRayMode } from './xray/xray-mode';
 
 export function createDevLensPanel(config?: PanelConfig): {
   panel: PanelInstance;
@@ -75,7 +77,19 @@ export function createDevLensPanel(config?: PanelConfig): {
   const panel = createPanel(host, config);
   const reporter = createPanelReporter(panel);
 
+  let xray: XRayInstance | null = null;
+  const xrayEnabled = config?.xray !== false;
+  if (xrayEnabled) {
+    const shadow = host.shadowRoot;
+    if (shadow) {
+      const xrayConfig = typeof config?.xray === 'object' ? config.xray : {};
+      xray = createXRayMode(shadow, () => panel.getIssues(), xrayConfig);
+      xray.enable();
+    }
+  }
+
   function destroy(): void {
+    xray?.destroy();
     panel.destroy();
     host.remove();
   }
