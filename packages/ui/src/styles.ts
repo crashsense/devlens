@@ -87,6 +87,7 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       user-select: none;
+      pointer-events: auto;
     }
 
     .dl-toggle:hover {
@@ -203,7 +204,7 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
     .dl-panel.open {
       opacity: 1;
       transform: translateY(0) scale(1);
-      pointer-events: auto;
+      pointer-events: auto !important;
     }
 
     .dl-panel.bottom-right { bottom: 68px; right: 16px; }
