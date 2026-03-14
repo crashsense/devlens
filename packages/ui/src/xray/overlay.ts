@@ -1,8 +1,18 @@
-import type { ComponentInfo, XRayConfig } from './types';
+import type { ComponentInfo, XRayConfig } from "./types";
 
 const DEFAULT_MAX_DEPTH = 2;
 const DEFAULT_MAX_STRING_LENGTH = 50;
 const TOOLTIP_MARGIN = 8;
+
+function getDirectTextContent(el: HTMLElement): string {
+  let text = "";
+  for (const node of el.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      text += node.textContent ?? "";
+    }
+  }
+  return text.trim();
+}
 
 interface OverlayElements {
   highlight: HTMLDivElement;
@@ -13,14 +23,14 @@ function createElement(
   shadowRoot: ShadowRoot,
   className: string,
 ): HTMLDivElement {
-  const el = document.createElement('div');
+  const el = document.createElement("div");
   el.className = className;
   shadowRoot.appendChild(el);
   return el;
 }
 
 function truncate(value: string, maxLen: number): string {
-  return value.length > maxLen ? value.slice(0, maxLen) + '\u2026' : value;
+  return value.length > maxLen ? value.slice(0, maxLen) + "\u2026" : value;
 }
 
 function formatValue(
@@ -29,34 +39,34 @@ function formatValue(
   maxDepth: number,
   maxStringLen: number,
 ): { text: string; cssClass: string } {
-  if (value === null) return { text: 'null', cssClass: 'dl-xray-value null' };
+  if (value === null) return { text: "null", cssClass: "dl-xray-value null" };
   if (value === undefined)
-    return { text: 'undefined', cssClass: 'dl-xray-value null' };
-  if (typeof value === 'string')
+    return { text: "undefined", cssClass: "dl-xray-value null" };
+  if (typeof value === "string")
     return {
       text: `"${truncate(value, maxStringLen)}"`,
-      cssClass: 'dl-xray-value string',
+      cssClass: "dl-xray-value string",
     };
-  if (typeof value === 'number')
-    return { text: String(value), cssClass: 'dl-xray-value number' };
-  if (typeof value === 'boolean')
-    return { text: String(value), cssClass: 'dl-xray-value boolean' };
+  if (typeof value === "number")
+    return { text: String(value), cssClass: "dl-xray-value number" };
+  if (typeof value === "boolean")
+    return { text: String(value), cssClass: "dl-xray-value boolean" };
   if (Array.isArray(value))
     return {
       text: `Array(${value.length})`,
-      cssClass: 'dl-xray-value null',
+      cssClass: "dl-xray-value null",
     };
-  if (typeof value === 'object') {
+  if (typeof value === "object") {
     if (depth >= maxDepth)
-      return { text: '{…}', cssClass: 'dl-xray-value null' };
+      return { text: "{…}", cssClass: "dl-xray-value null" };
     const keys = Object.keys(value as Record<string, unknown>).slice(0, 5);
-    const preview = keys.join(', ');
+    const preview = keys.join(", ");
     return {
       text: `{${truncate(preview, maxStringLen)}}`,
-      cssClass: 'dl-xray-value null',
+      cssClass: "dl-xray-value null",
     };
   }
-  return { text: String(value), cssClass: 'dl-xray-value' };
+  return { text: String(value), cssClass: "dl-xray-value" };
 }
 
 function buildSection(
@@ -65,21 +75,21 @@ function buildSection(
   maxDepth: number,
   maxStringLen: number,
 ): HTMLDivElement {
-  const section = document.createElement('div');
-  section.className = 'dl-xray-section';
+  const section = document.createElement("div");
+  section.className = "dl-xray-section";
 
-  const titleEl = document.createElement('div');
-  titleEl.className = 'dl-xray-section-title';
+  const titleEl = document.createElement("div");
+  titleEl.className = "dl-xray-section-title";
   titleEl.textContent = title;
   section.appendChild(titleEl);
 
   const keys = Object.keys(entries).slice(0, 8);
   for (const key of keys) {
-    const entry = document.createElement('div');
-    entry.className = 'dl-xray-entry';
+    const entry = document.createElement("div");
+    entry.className = "dl-xray-entry";
 
-    const keyEl = document.createElement('span');
-    keyEl.className = 'dl-xray-key';
+    const keyEl = document.createElement("span");
+    keyEl.className = "dl-xray-key";
     keyEl.textContent = `${key}: `;
     entry.appendChild(keyEl);
 
@@ -89,7 +99,7 @@ function buildSection(
       maxDepth,
       maxStringLen,
     );
-    const valEl = document.createElement('span');
+    const valEl = document.createElement("span");
     valEl.className = cssClass;
     valEl.textContent = text;
     entry.appendChild(valEl);
@@ -98,8 +108,8 @@ function buildSection(
   }
 
   if (Object.keys(entries).length > 8) {
-    const more = document.createElement('div');
-    more.className = 'dl-xray-entry';
+    const more = document.createElement("div");
+    more.className = "dl-xray-entry";
     more.textContent = `… ${Object.keys(entries).length - 8} more`;
     section.appendChild(more);
   }
@@ -107,10 +117,7 @@ function buildSection(
   return section;
 }
 
-function positionTooltip(
-  tooltip: HTMLDivElement,
-  rect: DOMRect,
-): void {
+function positionTooltip(tooltip: HTMLDivElement, rect: DOMRect): void {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const tooltipRect = tooltip.getBoundingClientRect();
@@ -154,8 +161,8 @@ export function createXRayOverlay(
   const showIssues = config.showIssues !== false;
 
   const elements: OverlayElements = {
-    highlight: createElement(shadowRoot, 'dl-xray-highlight'),
-    tooltip: createElement(shadowRoot, 'dl-xray-tooltip'),
+    highlight: createElement(shadowRoot, "dl-xray-highlight"),
+    tooltip: createElement(shadowRoot, "dl-xray-tooltip"),
   };
 
   function show(info: ComponentInfo): void {
@@ -166,25 +173,23 @@ export function createXRayOverlay(
     highlight.style.left = `${info.rect.left}px`;
     highlight.style.width = `${info.rect.width}px`;
     highlight.style.height = `${info.rect.height}px`;
-    highlight.style.display = 'block';
+    highlight.style.display = "block";
 
     // Build tooltip content
-    tooltip.innerHTML = '';
+    tooltip.innerHTML = "";
 
     // Header: <ComponentName>  [framework]
-    const header = document.createElement('div');
-    header.className = 'dl-xray-header';
+    const header = document.createElement("div");
+    header.className = "dl-xray-header";
 
-    const nameEl = document.createElement('span');
-    nameEl.className = 'dl-xray-name';
+    const nameEl = document.createElement("span");
+    nameEl.className = "dl-xray-name";
     nameEl.textContent =
-      info.framework === 'dom'
-        ? `<${info.name}>`
-        : `<${info.name}>`;
+      info.framework === "dom" ? `<${info.name}>` : `<${info.name}>`;
     header.appendChild(nameEl);
 
-    const fwBadge = document.createElement('span');
-    fwBadge.className = 'dl-xray-framework';
+    const fwBadge = document.createElement("span");
+    fwBadge.className = "dl-xray-framework";
     fwBadge.textContent = info.framework;
     header.appendChild(fwBadge);
 
@@ -193,47 +198,88 @@ export function createXRayOverlay(
     // Props section
     if (showProps && info.props && Object.keys(info.props).length > 0) {
       tooltip.appendChild(
-        buildSection('props', info.props, maxDepth, maxStringLen),
+        buildSection("props", info.props, maxDepth, maxStringLen),
       );
     }
 
     // State section
     if (showState && info.state && Object.keys(info.state).length > 0) {
       tooltip.appendChild(
-        buildSection('state', info.state, maxDepth, maxStringLen),
+        buildSection("state", info.state, maxDepth, maxStringLen),
       );
     }
 
     // ClassNames
     if (showClassNames && info.classNames.length > 0) {
-      const section = document.createElement('div');
-      section.className = 'dl-xray-section';
-      const title = document.createElement('div');
-      title.className = 'dl-xray-section-title';
-      title.textContent = 'class';
+      const section = document.createElement("div");
+      section.className = "dl-xray-section";
+      const title = document.createElement("div");
+      title.className = "dl-xray-section-title";
+      title.textContent = "class";
       section.appendChild(title);
-      const cls = document.createElement('div');
-      cls.className = 'dl-xray-classes';
-      cls.textContent = info.classNames.join(' ');
+      const cls = document.createElement("div");
+      cls.className = "dl-xray-classes";
+      cls.textContent = info.classNames.join(" ");
       section.appendChild(cls);
       tooltip.appendChild(section);
     }
 
+    const contentEntries: Record<string, unknown> = {};
+    const el = info.element;
+    if (el) {
+      const directText = getDirectTextContent(el);
+      if (directText) {
+        contentEntries["text"] =
+          directText.length > 80
+            ? directText.slice(0, 80) + "\u2026"
+            : directText;
+      }
+      if (info.tagName === "img") {
+        const src = el.getAttribute("src");
+        if (src) contentEntries["src"] = src;
+        const alt = el.getAttribute("alt");
+        if (alt) contentEntries["alt"] = alt;
+      }
+      if (info.tagName === "a") {
+        const href = el.getAttribute("href");
+        if (href) contentEntries["href"] = href;
+      }
+      if (
+        info.tagName === "input" ||
+        info.tagName === "textarea" ||
+        info.tagName === "select"
+      ) {
+        contentEntries["value"] = (el as HTMLInputElement).value ?? "";
+        const type = el.getAttribute("type");
+        if (type) contentEntries["type"] = type;
+      }
+      if (info.tagName === "video" || info.tagName === "source") {
+        const src = el.getAttribute("src");
+        if (src) contentEntries["src"] = src;
+      }
+      contentEntries["size"] = `${el.offsetWidth}\u00D7${el.offsetHeight}`;
+    }
+    if (Object.keys(contentEntries).length > 0) {
+      tooltip.appendChild(
+        buildSection("content", contentEntries, maxDepth, maxStringLen),
+      );
+    }
+
     // Issue count
     if (showIssues && info.issueCount > 0) {
-      const badge = document.createElement('div');
-      badge.className = 'dl-xray-issues';
-      badge.textContent = `\u26A0 ${info.issueCount} DevLens issue${info.issueCount !== 1 ? 's' : ''}`;
+      const badge = document.createElement("div");
+      badge.className = "dl-xray-issues";
+      badge.textContent = `\u26A0 ${info.issueCount} DevLens issue${info.issueCount !== 1 ? "s" : ""}`;
       tooltip.appendChild(badge);
     }
 
-    tooltip.style.display = 'block';
+    tooltip.style.display = "block";
     positionTooltip(tooltip, info.rect);
   }
 
   function hide(): void {
-    elements.highlight.style.display = 'none';
-    elements.tooltip.style.display = 'none';
+    elements.highlight.style.display = "none";
+    elements.tooltip.style.display = "none";
   }
 
   function destroy(): void {

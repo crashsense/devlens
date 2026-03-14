@@ -1,7 +1,7 @@
-import type { DetectedIssue, Reporter } from '@devlens/core';
-import { generateSessionId } from './protocol';
-import { createAdapter } from './adapter';
-import { getInspectorHTML } from './inspector-html';
+import type { DetectedIssue, Reporter } from "@devlens/core";
+import { generateSessionId } from "./protocol";
+import { createAdapter } from "./adapter";
+import { getInspectorHTML } from "./inspector-html";
 
 export interface InspectorConfig {
   width?: number;
@@ -38,19 +38,21 @@ const NOOP_INSTANCE: InspectorInstance = {
   destroy: () => {},
   connected: false,
   isOpen: false,
-  sessionId: '',
-  dashboardLink: '',
+  sessionId: "",
+  dashboardLink: "",
 };
 
-export function createDevLensInspector(config?: InspectorConfig): InspectorInstance {
-  if (typeof document === 'undefined') {
+export function createDevLensInspector(
+  config?: InspectorConfig,
+): InspectorInstance {
+  if (typeof document === "undefined") {
     return NOOP_INSTANCE;
   }
 
   try {
     if (
-      typeof process !== 'undefined' &&
-      process.env?.NODE_ENV === 'production'
+      typeof process !== "undefined" &&
+      process.env?.NODE_ENV === "production"
     ) {
       return NOOP_INSTANCE;
     }
@@ -69,10 +71,10 @@ export function createDevLensInspector(config?: InspectorConfig): InspectorInsta
 
   function getDashboardLink(): string {
     if (dashboardUrl) {
-      const base = dashboardUrl.replace(/\/$/, '');
+      const base = dashboardUrl.replace(/\/$/, "");
       return `${base}?session=${sessionId}`;
     }
-    return '';
+    return "";
   }
 
   function open(): void {
@@ -84,23 +86,20 @@ export function createDevLensInspector(config?: InspectorConfig): InspectorInsta
     if (dashboardUrl) {
       // Dashboard mode — open the hosted dashboard URL in a new tab
       const url = getDashboardLink();
-      inspectorWindow = window.open(
-        url,
-        `devlens-dashboard-${sessionId}`,
-      );
+      inspectorWindow = window.open(url, `devlens-dashboard-${sessionId}`);
     } else {
-      // Legacy mode — Blob URL popup
       const html = getInspectorHTML(sessionId);
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-
       inspectorWindow = window.open(
-        url,
+        "",
         `devlens-inspector-${sessionId}`,
         `width=${width},height=${height},menubar=no,toolbar=no,status=no`,
       );
 
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      if (inspectorWindow) {
+        inspectorWindow.document.open();
+        inspectorWindow.document.write(html);
+        inspectorWindow.document.close();
+      }
     }
 
     if (inspectorWindow) {
@@ -145,14 +144,22 @@ export function createDevLensInspector(config?: InspectorConfig): InspectorInsta
     open,
     close,
     destroy,
-    get connected() { return adapter.connected; },
-    get isOpen() { return inspectorWindow !== null && !inspectorWindow.closed; },
+    get connected() {
+      return adapter.connected;
+    },
+    get isOpen() {
+      return inspectorWindow !== null && !inspectorWindow.closed;
+    },
     sessionId,
-    get dashboardLink() { return getDashboardLink(); },
+    get dashboardLink() {
+      return getDashboardLink();
+    },
   };
 }
 
-export function createInspectorReporter(inspector: InspectorInstance): Reporter {
+export function createInspectorReporter(
+  inspector: InspectorInstance,
+): Reporter {
   let opened = false;
   return {
     report(issue: DetectedIssue): void {

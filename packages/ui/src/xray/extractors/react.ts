@@ -23,8 +23,7 @@ export interface ReactComponentData {
 function findFiberKey(element: HTMLElement): string | undefined {
   return Object.keys(element).find(
     (k) =>
-      k.startsWith('__reactFiber$') ||
-      k.startsWith('__reactInternalInstance$'),
+      k.startsWith("__reactFiber$") || k.startsWith("__reactInternalInstance$"),
   );
 }
 
@@ -52,12 +51,18 @@ function findComponentFiber(fiber: FiberNode): FiberNode | null {
 
 function getComponentName(fiber: FiberNode): string {
   const type = fiber.type;
-  if (type === null || type === undefined) return 'Unknown';
-  if (typeof type === 'string') return type;
-  return type.displayName || type.name || 'Anonymous';
+  if (type === null || type === undefined) return "Unknown";
+  if (typeof type === "string") return type;
+  return type.displayName || type.name || "Anonymous";
 }
 
-const SKIP_PROP_KEYS = new Set(['children', 'key', 'ref', '__self', '__source']);
+const SKIP_PROP_KEYS = new Set([
+  "children",
+  "key",
+  "ref",
+  "__self",
+  "__source",
+]);
 
 function filterProps(
   raw: Record<string, unknown> | null,
@@ -67,7 +72,7 @@ function filterProps(
   let hasEntries = false;
   for (const [key, value] of Object.entries(raw)) {
     if (SKIP_PROP_KEYS.has(key)) continue;
-    if (typeof value === 'function') continue;
+    if (typeof value === "function") continue;
     filtered[key] = value;
     hasEntries = true;
   }
@@ -79,25 +84,54 @@ function filterProps(
  * Function component state is a linked list starting at `fiber.memoizedState`.
  * Each node: `{ memoizedState, next }`.
  */
-function extractHookState(
-  fiber: FiberNode,
-): Record<string, unknown> | null {
+function describeHookValue(val: unknown): string {
+  if (val === null) return "null";
+  if (val === undefined) return "undefined";
+  if (typeof val === "string")
+    return val.length > 40 ? `"${val.slice(0, 40)}\u2026"` : `"${val}"`;
+  if (typeof val === "number") return String(val);
+  if (typeof val === "boolean") return String(val);
+  if (Array.isArray(val)) return `Array(${val.length})`;
+  if (typeof val === "object") {
+    const keys = Object.keys(val as Record<string, unknown>);
+    if (keys.length === 0) return "{}";
+    return `{${keys.slice(0, 4).join(", ")}${keys.length > 4 ? ", \u2026" : ""}}`;
+  }
+  return String(val);
+}
+
+function labelForHookState(val: unknown, index: number): string {
+  if (typeof val === "boolean") return `bool_${index}`;
+  if (typeof val === "string") return `str_${index}`;
+  if (typeof val === "number") return `num_${index}`;
+  if (val === null) return `null_${index}`;
+  if (Array.isArray(val)) return `list_${index}`;
+  if (typeof val === "object") return `obj_${index}`;
+  return `state_${index}`;
+}
+
+function extractHookState(fiber: FiberNode): Record<string, unknown> | null {
   const memoized = fiber.memoizedState;
-  if (!memoized || typeof memoized !== 'object') return null;
+  if (!memoized || typeof memoized !== "object") return null;
 
   const result: Record<string, unknown> = {};
   let node = memoized as { memoizedState?: unknown; next?: unknown } | null;
   let index = 0;
-  // Walk the hooks linked list (max 30 hooks to prevent runaway)
-  while (node && typeof node === 'object' && index < 30) {
+  let stateIndex = 0;
+  while (node && typeof node === "object" && index < 30) {
     const val = (node as { memoizedState?: unknown }).memoizedState;
-    // Skip refs, effects, and functions — only keep serializable state
     if (
       val !== undefined &&
-      typeof val !== 'function' &&
-      !(val && typeof val === 'object' && 'current' in (val as Record<string, unknown>))
+      typeof val !== "function" &&
+      !(
+        val &&
+        typeof val === "object" &&
+        "current" in (val as Record<string, unknown>)
+      )
     ) {
-      result[`hook_${index}`] = val;
+      const label = labelForHookState(val, stateIndex);
+      result[label] = describeHookValue(val);
+      stateIndex++;
     }
     node = (node as { next?: unknown }).next as typeof node;
     index++;
@@ -105,18 +139,16 @@ function extractHookState(
   return Object.keys(result).length > 0 ? result : null;
 }
 
-function extractClassState(
-  fiber: FiberNode,
-): Record<string, unknown> | null {
+function extractClassState(fiber: FiberNode): Record<string, unknown> | null {
   const memoized = fiber.memoizedState;
-  if (!memoized || typeof memoized !== 'object') return null;
+  if (!memoized || typeof memoized !== "object") return null;
   // Class component state is a plain object
   if (Array.isArray(memoized)) return null;
   const obj = memoized as Record<string, unknown>;
   const filtered: Record<string, unknown> = {};
   let hasEntries = false;
   for (const [key, value] of Object.entries(obj)) {
-    if (typeof value === 'function') continue;
+    if (typeof value === "function") continue;
     filtered[key] = value;
     hasEntries = true;
   }

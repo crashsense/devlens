@@ -1,4 +1,4 @@
-import type { DetectedIssue } from '@devlens/core';
+import type { DetectedIssue } from "@devlens/core";
 
 /** Configuration for X-Ray Mode */
 export interface XRayConfig {
@@ -21,7 +21,7 @@ export interface XRayConfig {
 /** Extracted component information */
 export interface ComponentInfo {
   /** Detected framework */
-  framework: 'react' | 'vue' | 'dom';
+  framework: "react" | "vue" | "dom";
   /** Component or tag name */
   name: string;
   /** Props / attributes */
@@ -36,6 +36,8 @@ export interface ComponentInfo {
   rect: DOMRect;
   /** Related DevLens issues */
   issueCount: number;
+  /** Reference to the inspected DOM element */
+  element: HTMLElement;
 }
 
 /** X-Ray mode instance */

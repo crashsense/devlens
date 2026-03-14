@@ -1,53 +1,53 @@
 /** All panel styles — injected into Shadow DOM for isolation */
-export function getPanelStyles(theme: 'dark' | 'light'): string {
-  const isDark = theme === 'dark';
+export function getPanelStyles(theme: "dark" | "light"): string {
+  const isDark = theme === "dark";
 
   const colors = isDark
     ? {
-        bg: '#1e1e2e',
-        bgSecondary: '#262637',
-        bgTertiary: '#2e2e42',
-        bgHover: '#33334a',
-        text: '#e2e2f0',
-        textSecondary: '#9898b0',
-        textMuted: '#6a6a82',
-        border: '#3a3a52',
-        borderLight: '#2e2e42',
-        brand: '#6366f1',
-        brandHover: '#818cf8',
-        error: '#ef4444',
-        errorBg: 'rgba(239,68,68,0.12)',
-        warn: '#f59e0b',
-        warnBg: 'rgba(245,158,11,0.12)',
-        info: '#3b82f6',
-        infoBg: 'rgba(59,130,246,0.12)',
-        scrollThumb: '#4a4a62',
-        scrollTrack: 'transparent',
-        shadow: 'rgba(0,0,0,0.5)',
-        badge: '#ef4444',
+        bg: "#1e1e2e",
+        bgSecondary: "#262637",
+        bgTertiary: "#2e2e42",
+        bgHover: "#33334a",
+        text: "#e2e2f0",
+        textSecondary: "#9898b0",
+        textMuted: "#6a6a82",
+        border: "#3a3a52",
+        borderLight: "#2e2e42",
+        brand: "#6366f1",
+        brandHover: "#818cf8",
+        error: "#ef4444",
+        errorBg: "rgba(239,68,68,0.12)",
+        warn: "#f59e0b",
+        warnBg: "rgba(245,158,11,0.12)",
+        info: "#3b82f6",
+        infoBg: "rgba(59,130,246,0.12)",
+        scrollThumb: "#4a4a62",
+        scrollTrack: "transparent",
+        shadow: "rgba(0,0,0,0.5)",
+        badge: "#ef4444",
       }
     : {
-        bg: '#ffffff',
-        bgSecondary: '#f8f8fc',
-        bgTertiary: '#f0f0f6',
-        bgHover: '#eaeaf2',
-        text: '#1a1a2e',
-        textSecondary: '#5a5a72',
-        textMuted: '#8a8aa2',
-        border: '#e2e2ea',
-        borderLight: '#eeeef4',
-        brand: '#6366f1',
-        brandHover: '#4f46e5',
-        error: '#dc2626',
-        errorBg: 'rgba(220,38,38,0.08)',
-        warn: '#d97706',
-        warnBg: 'rgba(217,119,6,0.08)',
-        info: '#2563eb',
-        infoBg: 'rgba(37,99,235,0.08)',
-        scrollThumb: '#c8c8d4',
-        scrollTrack: 'transparent',
-        shadow: 'rgba(0,0,0,0.15)',
-        badge: '#dc2626',
+        bg: "#ffffff",
+        bgSecondary: "#f8f8fc",
+        bgTertiary: "#f0f0f6",
+        bgHover: "#eaeaf2",
+        text: "#1a1a2e",
+        textSecondary: "#5a5a72",
+        textMuted: "#8a8aa2",
+        border: "#e2e2ea",
+        borderLight: "#eeeef4",
+        brand: "#6366f1",
+        brandHover: "#4f46e5",
+        error: "#dc2626",
+        errorBg: "rgba(220,38,38,0.08)",
+        warn: "#d97706",
+        warnBg: "rgba(217,119,6,0.08)",
+        info: "#2563eb",
+        infoBg: "rgba(37,99,235,0.08)",
+        scrollThumb: "#c8c8d4",
+        scrollTrack: "transparent",
+        shadow: "rgba(0,0,0,0.15)",
+        badge: "#dc2626",
       };
 
   return `
@@ -367,6 +367,39 @@ export function getPanelStyles(theme: 'dark' | 'light'): string {
       background: ${colors.info};
       border-color: ${colors.info};
       color: #fff;
+    }
+
+    .dl-category-row {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .dl-category-btn {
+      padding: 2px 6px;
+      border: 1px solid ${colors.borderLight};
+      border-radius: 4px;
+      background: transparent;
+      color: ${colors.textMuted};
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 600;
+      font-family: inherit;
+      letter-spacing: 0.03em;
+      transition: all 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .dl-category-btn:hover {
+      background: ${colors.bgTertiary};
+      color: ${colors.textSecondary};
+    }
+
+    .dl-category-btn.active {
+      background: ${colors.bgTertiary};
+      border-color: ${colors.brand};
+      color: ${colors.brand};
     }
 
     .dl-search {
