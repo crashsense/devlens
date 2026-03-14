@@ -1,6 +1,6 @@
 {
   "name": "@devlens/ui",
-  "version": "2.0.1",
+  "version": "2.1.1",
   "description": "DevLens UI Panel - visual issue overlay for browser debugging",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

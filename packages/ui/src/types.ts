@@ -25,6 +25,14 @@ export interface PanelConfig {
   xray?: boolean | XRayConfig;
   /** Automatically open the dashboard on first detected issue. (default: false) */
   autoOpenDashboard?: boolean;
+  /**
+   * Callback for in-app dashboard navigation. When set, the dashboard button
+   * calls this instead of `window.open()`. Use with a router: `(path) => navigate(path)`.
+   * The path defaults to `dashboardPath` or `'/__devlens__'`.
+   */
+  onNavigateToDashboard?: (path: string) => void;
+  /** In-app path for the dashboard route. Used with `onNavigateToDashboard`. (default: '/__devlens__') */
+  dashboardPath?: string;
 }
 
 /** Internal state of the panel */
